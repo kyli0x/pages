@@ -1,0 +1,115 @@
+<title>kyli0x.UbuntuMini.iso</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>Installing UbuntuMini.iso on a UEFI system for REMnux. </h2>
+
+by default the Ubuntu minimal .iso will only boot with a legacy BIOS. so im going to show you how you can get a UbuntuMini.iso on a UEFI system so we can install a minimal Ubuntu setup for REMnux. for this to happen we must build our own ISO using the Ubuntu minimal ISO, and a Ubuntu Server ISO.<br>through my research on this, i came across a script on <a target="_blank" href="https://noobient.com/2019/06/25/ubuntu-18-04-uefi-network-installer/">Noobient</a>
+
+<li>first lets create a temp directory for our work
+<code>$ mkdir /tmp/remnux</code>
+
+<li>next we will create a file for our script (you can call this whatever you'd like, i personally just named it customiso.sh)
+<code>$ touch customiso.sh</code>
+
+<li>lets copy the script into the customiso file, then make it executable. you can use whatever text editor you would like. i will be using vim in this example.
+<code>$ vim customiso.sh</code>
+
+<code>#!/bin/bash
+
+set -eu
+
+server_iso='ubuntu-20.04.1-legacy-server-amd64.iso'
+mini_iso='mini.iso'
+dist_dir='ubuntu-20.04-netinstall'
+
+if [ ! -e ${server_iso} ]
+then
+    wget "https://cdimage.ubuntu.com/ubuntu-legacy-server/releases/focal/release/${server_iso}"
+fi
+
+if [ ! -e ${mini_iso} ]
+then
+    wget "http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/current/legacy-images/netboot/${mini_iso}"
+fi</code>
+
+<li> extracting
+<code>rm -rf ${dist_dir}*
+7z x ${server_iso} -o${dist_dir}-tmp install/hwe-netboot/ubuntu-installer/amd64/linux
+7z x ${server_iso} -o${dist_dir}-tmp install/hwe-netboot/ubuntu-installer/amd64/initrd.gz
+7z x ${server_iso} -o${dist_dir} EFI
+7z x ${mini_iso} -o${dist_dir}
+mv ${dist_dir}-tmp/install/hwe-netboot/ubuntu-installer/amd64/linux ${dist_dir}/linux
+mv ${dist_dir}-tmp/install/hwe-netboot/ubuntu-installer/amd64/initrd.gz ${dist_dir}/initrd.gz
+zip -r ${dist_dir}.zip ${dist_dir}
+</code>
+<code>$ chmod +x customiso.sh</code>
+
+<li>run the script
+<code>$ ./customish.sh</code>
+
+<li>now if you do a <code>ls</code> you will see three new files and a two new directories. the two important files to verify are <code>ubuntu-20.04.1-legacy-server-amd64.iso</code>, <code>mini.iso</code>, and a the new directory called <code>ubuntu-20.04-netinstall</code>
+
+<li>time to verify the sha of your .iso files. to do this run the <code>sha256sum</code> command on both files
+<code>$ sha256sum mini.iso
+0e79e00bf844929d40825b1f0e8634415cda195ba23bae0b041911fde4dfe018  mini.iso
+$ sha256sum ubuntu-20.04.1-legacy-server-amd64.iso 
+f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2  ubuntu-20.04.1-legacy-server-amd64.iso</code>
+
+<li>now its time to make a custom ISO using the <code>mkisofs</code> command. if you do not have the command. you can download <code>cdrtools</code> through your package manager
+What I did was run
+<code>$ mkisofs -o ubuntu-20.04-netinstall.iso \</code>
+
+and this should give you a prompt to run the rest of the commands
+<code>&gt; -b ubuntu-20.04-netinstall/isolinux.bin \
+&gt; -c ubuntu-20.04-netinstall/boot.cat \
+&gt; -no-emul-boot \
+&gt; -boot-load-size 4 \
+&gt; -boot-info-table -J -R -V \
+&gt; UbuntuMinimal .</code>
+
+<li>after completing the previous step, you should now see another file in your directory called <code>ubuntu-20.04-netinstall.iso</code>
+
+<li>we now need to burn this iso onto our USB drive. lets verify the name of our USB stick first with
+<code>$ lsblk
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0 931.5G  0 disk 
+├─sda1   8:1    0     1G  0 part /boot
+├─sda2   8:2    0    30G  0 part /
+└─sda3   8:3    0 900.5G  0 part /home
+sdb      8:16   1  14.6G  0 disk</code>
+
+<li>be careful to make sure you recognize the proper block device name for your USB. in the picture above my USB is listed as <code>sdb</code>. if you are unsure what the block device name of your USB stick is called, you can run the <code>lsblk</code> command without the USB inserted in your PC and compare the differences to see what NAME is added</li>
+
+<li>lets actually burn the ISO onto our USB now using the command <code>dd</code>
+
+<strong>WARNING: YOU CAN DELETE YOUR OS IF YOU TYPE IN THE INCORRECT BLOCK DEVICE NAME</strong>
+
+<code>$ dd bs=4M if=ubuntu-20.04-netinstall.iso of=/dev/sdb status=progress</code>
+
+<li>once this is completed it's now time to boot your USB stick. i am going to assume you are installing REMnux onto another device. so lets plug in the USB stick into a USB port on the device you'd like to install Ubuntu on
+
+DISCLAIMER: i am going to assume that you have the knowledge about setting your boot order, and GRUB, so a few steps here will be skipped
+
+<li>when I personally plugged in my USB i was getting an error that my PC could not find a bootable device when my USB stick was set to #1 in my boot order. i seen that this was not an issue with other people trying to boot a minimal Ubuntu iso with UEFI. if you are having the same issue as me, and already have grub installed, go back into your BIOS and set GRUB as #1 in your boot order
+
+<li>once you see Grub pop up, depending on what is on your screen you will need to do a few steps differently
+
+<li>personally I previously had Arch installed on this device so I type in <code>c</code> to get to the grub terminal. if this is the case then we will need to type in a few commands to get the Ubuntu Installer to run. first lets list our devices
+
+<code>grub&gt; ls</code>
+
+<li>depending on your previous setup and partitions this could look a bit differnt. in my case my output of <code>ls</code> looked like this
+
+<code>(hd0) (hd1) (hd1,gpt3) (hd1,gpt2) (hd1,gpt1) (hd2)</code>
+
+<li>if you are not positive on which device is your USB, once again you can unplug your usb device. load up the grub terminal and perform a <code>ls</code> and see what device is missing. pay close attention to the devices listed with <code>,gptX</code> in them as they can give you a hint. for example if I remove my USB and perform a <code>ls</code> my output would look like this
+
+<code>(hd0) (hd0,gpt3) (hd0,gpt2) (hd0,gpt1) (hd1)</code>
+
+<li>as you can see the <code>hdX</code> number changes based on the order its listed and not the actual device itself. i can see that when my USB stick in inserted it is listed as <code>(hd0)</code> since the <code>hdX,gptX)</code> devices change numbers, and the trailing (hdX) also changes numbers. so now lets boot into our Ubuntu install
+
+<code>grub&gt; set root=(hd0)
+grub&gt; linux /ubuntu-20.04-netinstall/linux
+grub&gt; initrd /ubuntu-20.04-netinstall/initrd.gz
+grub&gt; boot</code>
+
+<li>this will bring up the Ubuntu Installer. to finish the remnux install I will direct you to the <a target="_blank" href="http://Remnux.org">Remnux.org</a> website as they already have a detailed writeup on the correct steps to take.
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

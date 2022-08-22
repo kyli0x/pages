@@ -1,0 +1,87 @@
+<title>kyli0x.google-dorking</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>google dorking</h2>
+<h3>google search commands:</h3><code>    site: [URL]…..Search only one URL
+    date: [ #]….. search within past [#] months
+    link: [url]….. find pages that link to [url]
+    related: [url]….. find pages related to [url]
+    intitle: [string]….. find pages with [string] in title
+    inurl: [string]….. find pages with [string] in url
+    filetype: [xls]….. find files that are xls
+    phonebook: [name]….. find phone book listings of [name]</code><br>
+<h3>dorking: cameras/webcams:</h3><code>    inurl:/mjpg/video.mjpg
+    intitle:"Login" inurl:"/doc/page/login.asp"
+    inurl:/mjpgmain.asp
+    inurl:top.htm inurl:currenttime
+    inurl:/view/viewer_index.shtml
+    intext:"powered by webcamXP 5"
+    intitle:"TRENDnet" (inurl:"top.htm"| inurl:"STSSYS.HTM"| inurl:"AVIEW.HTM"| inurl:"JPlug.htm" | inurl:"JVIEW.HTM")
+    intitle:webcam 7 inurl:8080 -intext:8080</code><br>
+<h4>codes:</h4><code>|-----------------------------------------------------------------------|
+| inurl:item_id=                      | inurl:review.php?id=            |
+| inurl:newsid=                       | inurl:iniziativa.php?in=        |
+| inurl:trainers.php?id=              | inurl:curriculum.php?id=        |
+| inurl:news-full.php?id=             | inurl:labels.php?id=            |
+| inurl:news_display.php?getid=       | inurl:story.php?id=             |
+| inurl:index2.php?option=            | inurl:look.php?ID=              |
+| inurl:readnews.php?id=              | inurl:newsone.php?id=           |
+| inurl:top10.php?cat=                | inurl:aboutbook.php?id=         |
+| inurl:newsone.php?id=               | inurl:material.php?id=          |
+| inurl:event.php?id=                 | inurl:opinions.php?id=          |
+| inurl:product-item.php?id=          | inurl:announce.php?id=          |
+| inurl:sql.php?id=                   | inurl:rub.php?idr=              |
+| inurl:index.php?catid=              | inurl:galeri_info.php?l=        |
+| inurl:news.php?catid=               | inurl:tekst.php?idt=            |
+| inurl:index.php?id=                 | inurl:newscat.php?id=           |
+| inurl:news.php?id=                  | inurl:newsticker_info.php?idn=  |
+| inurl:index.php?id=                 | inurl:rubrika.php?idr=          |
+| inurl:trainers.php?id=              | inurl:rubp.php?idr=             |
+| inurl:buy.php?category=             | inurl:offer.php?idf=            |
+| inurl:article.php?ID=               | inurl:art.php?idm=              |
+| inurl:play_old.php?id=              | inurl:title.php?id=             |
+| inurl:declaration_more.php?decl_id= | inurl:news_view.php?id=         |
+| inurl:pageid=                       | inurl:select_biblio.php?id=     |
+| inurl:games.php?id=                 | inurl:humor.php?id=             |
+| inurl:page.php?file=                | inurl:aboutbook.php?id=         |
+| inurl:newsDetail.php?id=            | inurl:ogl_inet.php?ogl_id=      |
+| inurl:gallery.php?id=               | inurl:fiche_spectacle.php?id=   |
+| inurl:article.php?id=               | inurl:communique_detail.php?id= |
+| inurl:show.php?id=                  | inurl:sem.php3?id=              |
+| inurl:staff_id=                     | inurl:kategorie.php4?id=        |
+| inurl:newsitem.php?num=             | inurl:news.php?id=              |
+| inurl:readnews.php?id=              | inurl:index.php?id=             |
+| inurl:top10.php?cat=                | inurl:faq2.php?id=              |
+| inurl:historialeer.php?num=         | inurl:show_an.php?id=           |
+| inurl:reagir.php?num=               | inurl:preview.php?id=           |
+| inurl:Stray-Questions-View.php?num= | inurl:loadpsb.php?id=           |
+| inurl:forum_bds.php?num=            | inurl:opinions.php?id=          |
+| inurl:game.php?id=                  | inurl:spr.php?id=               |
+| inurl:view_product.php?id=          | inurl:pages.php?id=             |
+| inurl:newsone.php?id=               | inurl:announce.php?id=          |
+| inurl:sw_comment.php?id=            | inurl:clanek.php4?id=           |
+| inurl:news.php?id=                  | inurl:participant.php?id=       |
+| inurl:avd_start.php?avd=            | inurl:download.php?id=          |
+| inurl:event.php?id=                 | inurl:main.php?id=              |
+| inurl:product-item.php?id=          | inurl:review.php?id=            |
+| inurl:sql.php?id=                   | inurl:chappies.php?id=          |
+| inurl:gallery.php?id=               | inurl:tradeCategory.php?id=     |
+| inurl:rub.php?idr=                  | inurl:index.php?=               |
+| inurl:view_faq.php?id=              | inurl:profile_view.php?id=      |
+| inurl:artikelinfo.php?id=           | inurl:category.php?id=          |
+| inurl:detail.php?ID=                | inurl:publications.php?id=      |
+| inurl:fellows.php?id=               | inurl:prod_info.php?id=         |
+| inurl:downloads_info.php?id=        | inurl:shop.php?do=part&id=      |
+| inurl:productinfo.php?id=           | inurl:collectionitem.php?id=    |
+| inurl:band_info.php?id=             | inurl:product.php?id=           |
+| inurl:pages.php?id=                 | inurl:pop.php?id=               |
+| inurl:loadpsb.php?id=               | inurl:page.php?id=              |
+| inurl:preview.php?id=               | inurl:theme.php?id=             |
+| inurl:aboutbook.php?id=             | inurl:section.php?id=           |
+| inurl:channel_id=                   | inurl:memberInfo.php?id=        |
+| inurl:transcript.php?id=            | inurl:clubpage.php?id=          |
+| inurl:shop_category.php?id=         | inurl:viewshowdetail.php?id     |
+| inurl:product_ranges_view.php?ID=   | inurl:releases.php?id=          |
+| inurl:post.php?id=                  | inurl:ray.php?id=               |
+| inurl:productdetail.php?id=         | inurl:produit.php?id=           |
+| inurl:shredder-categories.php?id=   | inurl:shopping.php?id=          |
+|-----------------------------------------------------------------------|
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

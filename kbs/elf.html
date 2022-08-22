@@ -1,0 +1,220 @@
+<title>kyli0x.elf</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>learning elf</h2>
+
+<h3> ELF - extensible & linkable format</h3>
+
+segments
+- point to absolute address in memory
+- some dont have any content
+- specify where and how they should be loaded in physical or virtual memory (how to map parts of elf file into memory)
+- can point to shared lib to allow shared lib segments to point in memory
+
+sections
+- point to absolte address in memeory
+- can overlap segments
+
+
+
+EFL HEADER # metadata of file<code>
+
+00000000 7f 45 4c 46 02 01 01 00  00 00 00 00 00 00 00 00 |.ELF............|
+hex      7f E  L  F  </code># used for all ELF files<code>
+
+00000000 7f 45 4c 46 02 </code># class 0=NONE(invalid);1=32Bit Objects;2=64Bit Objects<code>
+
+00000000 7f 45 4c 46 02 01 </code># data 0=NONE(Invalid);1=LSB-Least Significant Byte First;2= MSB-Most Significant Byte First<code>
+
+00000000 7f 45 4c 46 02 01 01 </code># version (always 1)<code>
+
+00000000 7f 45 4c 46 02 01 01 00 </code># OS ABI (application binary interface)0=None/System V(very common used);1=HP-UX;2=NetBSD;3=Linux(statically compiled binarys mostly use 3)<code>
+
+00000000 7f 45 4c 46 02 01 01 00  00 </code># ABI version(almost never used in wild)<code>
+
+00000000 7f 45 4c 46 02 01 01 00  00 00 00 00 00 00 00 00 </code># padding(not used)<code>
+
+                    typedef struct {
+                    unsiged char  e_ident[EI_NIDENT];
+           uint16_t HalfWord      e_type;
+           uint16_t HalfWord      e_machine;
+           uint32_t Word          e_version;
+  uint32_t/uint64_t Address       e_entry;
+  uint32_t/uint64_t Offset        e_phoff;
+  uint16_t/uint64_t Offset        e_shoff;
+           uint32_t Word          e_flags;
+           uint16_t HalfWord      e_ehsize;
+           uint16_t HalfWord      e_phentsize;
+           uint16_t HalfWord      e_phnum;
+           uint16_t HalfWord      e_shentsize;
+           uint16_t HalfWord      e_shnum
+           uint16_t HalfWord      e_shstrndx;
+                    } ElfHeader;</code>
+
+
+EI_NIDENT (how the exe needs to be parsed)
+
+e_type      - ET_NONE 0 = no file type
+            - ET_REL  1 = relocatable file type (elf type when using gcc in compile only mode gcc -c)
+            - ET_EXEC 2 = executable file (will not support ASLR - no position indendent executable support will need to disable PIE explicitely gcc -no-pie)
+            - ET_DYN  3 = Shared object file and executables cwith position indendent code
+            - ET_CORE 4 = core file # some processors reserve values from 0xFF00 - 0xFFFF
+
+e_machine   - 0x03 = x86
+              0x08 = MIPS
+              0x28 = ARM
+              0x3E = amd64
+              0xB7 = ARMv8
+              0xf3 = RISC-V
+
+e_version   - always 1
+
+e_entry     - entry point into executable or constructor address for shared libs, (no entry point=0)
+
+e_phoff     - program headers offset (specify segments) # offset relative to beginning of file
+
+e_shoff     - section headers offset (specify sections) # offset relative to beginning of file
+
+e_flags     - flags are heavily architecture & os dependent & often specify exe mode for the processor
+
+e_ehsize    - member specifying the size of the elf header itself (redundant from elf class)
+
+e_phentsize - size per program header
+
+e_phnum     - number of program header entries
+
+e_shentsize - size per section header
+
+e_shnum     - number of section header entries
+
+e_shstrndx  - section header string table index resolves names of sections contained in the file. the string table is basically an array of 0(null byte) terminated string. ex at offset 0/8<code> 
+E  x  a  m  p  l  e     T  a  b  l  e
+45 78 61 6d 70 6c 65 00 54 61 62 6c 65 00</code>
+
+<code>$ readelf -h /bin/program </code>
+
+
+<h3> program header segments</h3><code>
+typedef struct {
+      Word    type;
+      Offset  offset;
+      Address vaddr;
+      Address paddr;
+      Word    filesz;
+      Word    memsz;
+      Word    flags;
+      Word    align;
+} ProgramHeader32;</code>
+
+type<code>
+0 = PT_NULL     </code>- placeholder & simple way to disable segment by changing a single value in ELF file<code>
+
+1 = PT_LOAD     </code>- segments loaded into memory & create zero initalized segments by specifying larger size in memory than what is loaded from the file<code>
+
+2 = PT_DYNAMIC  </code>- contains info required for dynamically linked bins & interpreted by the OS to load shared libs related to exe<code>
+
+3 = PT_INTERP   </code>- specifies the program interpreter required by a dynamic exe. content of this segment is a null terminated string and will point to an absolute path on the filesystem (shared libs will not have a segment of this type)<code>
+
+4 = PT_NOTE     </code>- can hold auxiliary info for the bin (ex: or debugger & other tools)<code>
+
+5 = PT_SHLIB    </code>- undefined & never should be used. elf files that use this are not conformant to the system (5) ELF specs<code>
+
+6 = PT_PHDR     </code>- program header if & where program header table will be loaded into memory<code>
+
+7 = PT_TLS      </code>- Thread local storage contains info about inialized
+thread local variables
+
+
+<h4>OS specific segment types</h4>GNU/Linux - a segment that specifies what parts of memory should be marked as read-only after dynamic loader has finished their job
+
+<code>PT_LOOS=0x6000_0000 - PT_HIOS=0x6FFF_FFFF 
+PT_LOPROC=0x7000_0000 - PT_HIPROC0x7FFF-FFFF</code>
+
+
+offset      - specifies where in the elf file the content of this segment is located (if available)
+
+vaddr       - virtual address field specifies where the first byte of the segment will be in memory 
+
+paddr       - only used in contexts where physical memory is relevant (ex: firmware files, specifies physical address where segment will be loaded)
+
+filesz      - size of segment inside the file. if value is 0 the segment is defined exclusively by the program header and no further content in the file.
+
+memsz       - size of segment inside memory. if value is larger than the size in the file, leftover bytes will be initalized as 0.
+
+falgs       - allow specifying the permissions of the segment (PF_X - executable;PF_W - writable;PF_R - readable)
+
+align       - specifies alighnment requirements for the segment. allows specification of whether a segment needs to be aligned to example 4byte or 8byte boundary
+
+# 32bit and 64bit program headers are in different orders
+
+<code>$ readelf --segment /bin/program</code>
+
+
+<h3> section header table</h3>
+
+can check location by checking file offset in ELF header<code> 
+
+typedef struct {
+Word    sh_name;
+Word    sh_type;
+Word    sh_flags;
+Address sh_addr;
+Offset  sh_offset;
+Word    sh_size;
+Word    sh_link;
+Word    sh_info;
+Word    sh_addralign;
+Word    sh_entsize;
+  } SectionHeader32;</code>
+
+only used during linking and by tools such as debuggers
+
+during execution & reverse engineering, only the segment counts<code>
+
+$ sstrip program-name</code>             # strips all sections from an executable<code>
+$ readelf --sections program-name</code> # verify successful striping
+
+sh_name     - name of the section, its an offset into section header string table
+
+sh_type<code>
+0 = SHT_NULL      </code># inactive section and to be ignored<code>
+1 = SHT_PROGBITS  </code># section contains data for the program (ex code, variable data, etc. doesnt have a defined format)<code>
+2 = SHT_SYMTAB    </code># contain list of symbol table structures, each defining a symbol (defines local and global symbols, and addresses required during linking)<code>
+3 = SHT_STRTAB    </code># string table section<code>
+4 = SHT_RELA      </code># relocation section contains info on how to modify different sections when assembling an executable<code>
+5 = SHT_HASH      </code># hash table<code>
+6 = SHT_DYNAMIC   </code># dynamic type contains info required for dynamic linking & generally has the same contents as the PT_DYNAMIC segment type<code>
+7 = SHT_NOTE      </code># note segment contains auxillary info & notes used by different tools<code>
+8 = SHT_NOBITS    </code># defines section that does not take up any space in the file, but specifies required space for unintalized variables, etc<code>
+9 = SHT_REL       </code># relcation section<code>
+10 = SHT_SHLIB    </code># reserved but unused<code>
+11 = SHT_DYNSYM   </code># dynamic symbol table structures
+
+Ranges for processor specific and user specific sections<code>
+PT_LOUSER=0x8000_0000 - PT_HIUSER=0xFFFF_FFFF
+PT_LOPROC=0x7000_0000 - PT HIPROC=0x7FFF_FFFF</code>
+
+sh_flags<code>  
+0x1 = SHF_WRITE     </code># indicates section should be writable if a segment is created<code>
+0x2 = SHF_ALLOC     </code># specifies section should be part of the segments that are loaded into memory<code>
+0x4 = SHF_EXECINSTR </code># specifies section contains executable instructions
+                    # Bitmask: range of flags reserved for processor specific semantics<code>
+0xF0000000 SHF_MASKPROC</code>
+
+sh_addr       - specifies the address a section will appear in the memory image of a process, if it is contained for example in a loaded segment
+
+sh_offset     - specifies the location of section data in ELF file
+
+sh_size       - specifies how large section data is in the ELF file
+
+sh_link       - allows section to be linked to another section (ex link field to indicate it contains auxillary info)
+
+sh_info       - extra information depending on the section type
+
+sh_addralign  - specifies if the section has any alignment constraints
+
+sh_entsize    - sections that contain fixed size of each entry (if you divide size specified in sh_size with value in sh_entsize = number of entries in the section)
+
+<code>$ readelf --sections /bin/program</code> # will list all the different sections, then used by linker to create an ELF file with the segments required to runthe code contained inthe sections
+
+
+<code>Tags: linux, elf</code>
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

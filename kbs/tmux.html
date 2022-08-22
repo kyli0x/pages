@@ -1,0 +1,44 @@
+<title>kyli0x.tmux</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>terminal multiplexer</h2>
+
+# session management<code>
+  tmux ls (or tmux list-sessions)
+  tmux new -s session-name
+  Ctrl-b d Detach from session
+  tmux attach -t [session name]
+  tmux kill-session -t session-name
+
+  Ctrl-b c Create new window
+  Ctrl-b d Detach current client
+  Ctrl-b l Move to previously selected window
+  Ctrl-b n Move to the next window
+  Ctrl-b p Move to the previous window
+  Ctrl-b & Kill the current window
+  Ctrl-b , Rename the current window
+  Ctrl-b q Show pane numbers (used to switch between panes)
+  Ctrl-b o Switch to the next pane
+  Ctrl-b ? List all keybindings</code>
+
+# moving between windows<code>
+  Ctrl-b n (Move to the next window)
+  Ctrl-b p (Move to the previous window)
+  Ctrl-b l (Move to the previously selected window)
+  Ctrl-b w (List all windows / window numbers)
+  Ctrl-b window number (Move to specified window number, default bindings are from 0-9)</code>
+
+# tiling commands<code>
+  Ctrl-b % (Split window vertically)
+  Ctrl-b " (Split window horizontally)
+  Ctrl-b o (Go to next pane)
+  Ctrl-b q (Show pane numbers, when the numbers show up type the key to go to that pane)
+  Ctrl-b { (Move the current pane left)
+  Ctrl-b } (Move the current pane right)</code>
+
+# make pane into its own window<code>
+  Ctrl-b : "break-pane"</code>
+
+# add to ~/.tmux.conf<code>
+  bind | split-window -h
+  bind - split-window -v</code>
+
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

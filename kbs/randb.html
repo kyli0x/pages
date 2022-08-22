@@ -1,0 +1,51 @@
+<title>kyli0x.randb</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>random info & commands</h2>
+
+this is a dump of random information that i come across that doesnt seem to fit into its own kb. with that being said, this page information will constantly be changing, and if something is removed from here then it will most likely be added to its own kb article
+
+:: mac users should always use lowercase, mac have HFS+ filesystem and HFS+ is not case sentitive it can read "MyFile" or "myfile" as "myfile"
+
+:: use dash-case in you filesystem for speed
+
+:: get windows license key after linux is installed
+    <code> strings /sys/firmware/acpi/tables/MSDM
+
+:: find mouse button state
+    <code>$ xev |grep button</code>
+
+:: host that dont ban:
+    <code>nforce.com
+    novogara.com
+    ecatel.co.uk
+    sologigabit.com</code>
+
+:: change default shell of user
+    <code>sudo useradd -D -s /new/shell</code> # 1st way
+    <code>chsh -s /new/shell USERNAME</code>    # 2nd way
+
+:: check cron jobs
+    <code>for user in $(cat /etc/passwd | cut -f1 -d: ); do echo $user; crontab -u $user -l; done</code>
+
+:: check for users who have login shell only
+    <code>for user in $(cat /etc/passwd | grep sh$ | cut -f1 -d: ); do echo $user; crontab -u $user -l; done</code>
+
+:: checking processes
+    <code>ps -f
+    ps auxfww</code> # username, TTY, wide output
+
+:: finding SUID
+    <code>find / -type f -perm -u=s 2>/dev/null</code>
+
+:: TERMMOD <code>= CTRL+SHIFT</code>
+:: MODKEY <code>= ATL</code>
+
+:: list files that contain searched keyword
+    <code>grep -iRl [keyword] [path/to/file]</code>
+
+:: use the following commands to start monitor mode for airmon-ng
+    <code>ifconfig wlp3s0 down
+    iwconfig wlp3s0 mode monitor
+    ifconfig wlp3s0up
+    aireplay-ng wlp3s0</code>
+
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

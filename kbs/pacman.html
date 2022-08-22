@@ -1,0 +1,37 @@
+<title>kyli0x.pacman</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>pacman guide</h2>
+
+<h3>Arch Linux: pacman – The Reference Guide</h3>POSTED MAY 6, 2019 kyli0x (originally on cloudsearch.net)
+
+quick brief:
+pacman is used as a package manager on Arch Linux. it was created to be user friendly by combining a binary package with a build system. pacman makes it easy to manager packages from offical repositories to personal builds. pacman also keeps the system up to date by syncing the package lists with the master server. this allows the user to install packages with a simple command
+
+<code>recommended flags</code>
+  -Syu                  update all package databases and upgrade installed packages
+  -Syy                  force update package database even if recently updated
+  -Syyuw                download packages but choose to manually download later
+  -Rns                  removes pkg, dependencies and system config files
+  -Qdt                  lists unneeded dependencies (orphans)
+  -Rns $(pacman -Qdtq)  removes all uneeded dependencies (orphans)
+  -Q | wc -l            tells how many packages you have
+
+<code>syncing flags</code>
+  -S                    syncing repositories & databases
+  -y                    update package database (mirrors)
+  -u                    upgrade installed packages
+  -c                    remove all packages from cache (older versions after upgrading)
+  -s                    search remote repositories
+
+<code>removing flags</code>
+  -R                    removes packages (recommended to not run alone)
+
+<code>listing flags</code>
+  -Q                    lists all packages installed
+  -s                    search local repository
+  -e                    list only programs you installed explicit (no dependencies)
+  -q                    gets rid of details/version (lists only name of package)
+  -n                    lists packages installed from main repository
+  -m                    lists packages installed from AUR
+
+<code>Tags: arch, linx, pacman, package-manager</code>
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

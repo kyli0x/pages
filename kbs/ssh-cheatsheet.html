@@ -1,0 +1,138 @@
+<title>kyli0x.ssh-cheatsheet</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>ssh audit & pentest</h2>
+SSH has several features that are useful during pentesting and auditing. this page aims to remind us of the syntax for the most useful features
+
+note: this page does not attempt to replace the man page for pentesters, only to supplement it with some pertinent examples
+
+
+<h3>SOCKS Proxy</h3>set up a SOCKS proxy on 127.0.0.1:1080 that lets you pivot through the remote host (10.0.0.1)
+    <code>ssh -D 127.0.0.1:1080 10.0.0.1</code>
+~/.ssh/config:
+    <code>Host 10.0.0.1
+    DynamicForward 127.0.0.1:1080</code>
+you can then use tsocks or similar to use non-SOCKS-aware tools on hosts accessible from 10.0.0.1
+    <code>tsocks rdesktop 10.0.0.2</code>
+
+
+<h3>Local Forwarding</h3>make services on the remote network accessible to your host via a local listener
+
+note: remember that you need to be root to bind to TCP port <1024.  higher ports are used in the examples below
+
+Example 1:
+the service running on the remote host on TCP port 1521 is accessible by connecting to 10521 on the SSH client system
+    <code>$ ssh -L 127.0.0.1:10521:127.0.0.1:1521 user@10.0.0.1</code>
+~/.ssh/config:
+    <code> LocalForward 127.0.0.1:10521 127.0.0.1:1521</code>
+
+
+Example 2:
+same thing, but other hosts on the same network as the SSH client can also connect to the remote service (can be insecure)
+    <code>ssh -L 0.0.0.0:10521:127.0.0.1:1521 10.0.0.1</code>
+~/.ssh/config:
+    <code>LocalForward 0.0.0.0:10521 127.0.0.1:1521</code>
+
+
+Example 3:
+in this example, 10.0.0.99 is a host that’s accessible from the SSH server.  we can access the service it’s running on TCP port 1521 by connecting to 10521 on the SSH client
+    <code>ssh -L 127.0.0.1:10521:10.0.0.99:1521 10.0.0.1</code>
+~/.ssh/config:
+    <code>LocalForward 127.0.0.1:10521 10.0.0.99:1521</code>
+
+
+<h3>Remote Forwarding</h3>make services on your local system / local network accessible to the remote host via a remote listener.  this sounds like an odd thing to want to do, but perhaps you want to expose a services that lets you download your tools
+
+note: remember that you need to be root to bind to TCP port <1024.  higher ports are used in the examples below
+
+Example 1:
+the SSH server will be able to access TCP port 80 on the SSH client by connecting to 127.0.0.1:8000 on the SSH server
+    <code>ssh -R 127.0.0.1:8000:127.0.0.1:80 10.0.0.1</code>
+~/.ssh/config:
+    <code>RemoteForward 127.0.0.1:8000 127.0.0.1:80</code>
+
+
+Example 2:
+the SSH server will be able to access TCP port 80 on 172.16.0.99 (a host accessible from the SSH client) by connecting to 127.0.0.1:8000 on the SSH server
+    <code>ssh -R 127.0.0.1:8000:172.16.0.99:80 10.0.0.1</code>
+~/.ssh/config:
+    <code>RemoteForward 127.0.0.1:8000 172.16.0.99:80</code>
+
+
+Example 3:
+the SSH server will be able to access TCP port 80 on 172.16.0.99 (a host accessible from the SSH client) by connecting to TCP port 8000 on the SSH server.  any other hosts able to connect to TCP port 8000 on the SSH server will also be able to access 172.16.0.99:80. this can sometimes be insecure
+    <code>ssh -R 0.0.0.0:8000:172.16.0.99:80 10.0.0.1</code>
+~/.ssh/config:
+    <code>RemoteForward 0.0.0.0:8000 172.16.0.99:80</code>
+
+
+<h3>Configuration Files</h3><h4>~/.ssh/config</h4>it’s sometimes easier to configure options on your SSH client system in ~/.ssh/config for hosts you use a lot rather than having to type out long command lines. using ~/.ssh/config also makes it easier to use other tools that use SSH (e.g. scp and rsync) it’s possible to tell other tools that SSH listens on a different port, but it’s a pain
+    <code>Host 10.0.0.1
+    Port 2222
+    User ptm
+    ForwardX11 yes
+    DynamicForward 127.0.0.1:1080
+    RemoteForward 80 127.0.0.1:8000
+    LocalForward 1521 10.0.0.99:1521</code>
+the above lines are explained more fully in the other subsection on this page
+
+<h4>~/.ssh/authozied_keys</h4>during a pentest or audit, you might want to add an authorized_keys file to let you log in using an SSH key. the authorized_keys file lives in a user’s home directory on the SSH server. it holds the public keys of the users allowed to log into that user’s account
+
+generate a public/private key pair
+    <code>ssh-keygen -f mykey
+    cat mykey.pub</code> # you can copy this to authorized_keys
+
+if you want to shortest possible key (because your arbitrary-file-write vector is limited), do this
+    <code>ssh-keygen -f mykey -t rsa -b 768
+    cat mykey.pub</code> # copy to authorized_key. omit the trailing user@host if you need a shorter key
+
+connect to the target system like this (you need to know the username of the user you added an authorized key for)
+    <code>ssh -i mykey user@10.0.0.1</code>
+
+caveat: the authorized_keys file might not work if it’s writable by other users.  if you already have shell access you can <code>chmod 600 ~/.ssh/authorized_keys”</code>  however, if you’re remotely exploiting an arbitrary file-write vulnerability and happen to have a weak umask, you may have problems
+
+
+<h3>X11 Forwarding</h3>if your SSH client is also an X-Server then you can launch X-clients (e.g. Firefox) inside your SSH session and display them on your X-Server.  this works well with from Linux X-Servers and from cygwin‘s X-server on Windows
+    <code>SSH -X 10.0.0.1
+    SSH -Y 10.0.0.1</code> # less secure alternative - but faster
+
+~/.ssh/config:
+    <code>ForwardX11 yes
+    ForwardX11Trusted yes</code># less secure alternative - but faster
+
+
+<h3>SSH Agents</h3>SSH agents can be used to hold your private SSH keys in memory.  the agent will then authenticate you to any hosts that trust your SSH key
+
+this has the following advantages
+- you don’t have to keep entering your passphrase (if you chose to encrypt your private key)
+- but you still get to store your private SSH key in an encrypted format on disk.
+
+using an SSH agent is probably more secure than storing your key in cleartext, but agents can be hijacked
+
+<h4>using an SSH agent</h4>first start your agent
+    <code>eval `ssh-agent`</code>
+
+then add your keys to it – you’ll need to enter your passphrase for any encrypted keys
+    <code>ssh-add ~/dir/mykey</code>
+
+<h4>Hijacking SSH Agents</h4>if you see SSH agents running on a pentest (process called “ssh-agent”), you might be able to use it to authenticate you to other hosts – or other accounts on that host.  check out ~/.ssh/known_hosts for some ideas of where you might be able to connect to
+
+you can use any agents running under the account you compromised.  if you’re root you can use any SSH agent
+
+SSH agents listen on a unix socket.  you need to figure where this is for each agent (e.g. /tmp/ssh-tqiEl28473/agent.28473). you can then use the agent like this:
+    <code>export  SSH_AUTH_SOCK=/tmp/ssh-tqiEl28473/agent.28473
+    ssh-add -l</code> # lists the keys loaded into the agent
+    <code>ssh user@host</code> # will authenticate you if server trusts key in agent
+
+this command illustrates how you could inspect the environment of every ssh-agent process on a Linux system.  it should yield a list of unix sockets for SSH agents
+    <code>ps auxeww | grep ssh-agent | grep SSH_AUTH_SOCK | sed 's/.*SSH_AUTH_SOCK=//' | cut -f 1 -d ' '</codE>
+
+
+<h3>Agent Forwarding</h3>if you enable SSH agent forwarding then you’ll be able to carry on using the SSH agent on your SSH client during your session on the SSH server.  this is potentially insecure because so will anyone else who is root on the SSH server you’re connected to. avoid using this feature with any keys you care about
+
+
+<h3>random notes</h3>if you see the error
+    <code>Unable to negotiate with ip_addr port 22: no matching host key type found. Their offer: ssh-rsa,ssh-dss</code>
+this means we are trying to connect to legacy devices that hace outdated crypto support. for example household applicances, and network equipment like old cisco routers. to fix this issue when logging in, use the <code>-oHostKeyAlgorithms=+ssh-dss</code>flag.
+    <code>ssh -oHostKeyAlgorithms=+ssh-dss user@ip_addr</code>
+
+<code>Tags: pentest, ssh</code>
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>

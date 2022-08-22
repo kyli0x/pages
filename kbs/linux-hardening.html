@@ -1,0 +1,31 @@
+<title>kyli0x.linux-hardening</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>linux just got harder</h2>
+
+a walkthough on hardening your linux machine #work-in-progress<br><br>first things first, obfuscation is your best friend. anything and everything that you can obfuscate, do so.<br><br>also if you don't already have LVM, reinstall your distro
+
+<h3>ssh:</h3>
+<code># nvim /etc/ssh/sshd_config</code>
+<code> 
+  Port 1025-65500 </code>#pick any port you want<code>
+  PermitRootLogin no
+  Protocol2
+  IgnoreRhost yes
+  HostbasedAuthentication no
+  PermitEmptyPasswords no
+  X11Forwarding no
+  MaxAuthTries 5
+  ClientAliveInterval 900
+  ClientAliveCountMax 0
+  UsePAM yes
+
+# chown root:root /etc/ssh/sshd_config
+# chmod 600 /etc/ssh/sshd_config
+
+# nvim /etc/issue.net </code> #ssh display banner before login prompt
+<code>+----------------------------------------------------+
+| This is a controlled access system. The activities |
+| on this system are monitored.                      |
+| Evidence of unauthorised activities may be         |
+| disclosed to the appropriate authorities.          |
++----------------------------------------------------+
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>
