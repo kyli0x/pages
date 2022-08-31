@@ -1,0 +1,37 @@
+<title>kyli0x.git</title><link rel="icon" href="../fav.ico"><link rel="stylesheet" href="../style.css"><pre>
+<h2><sub><sup><a href="../index.html">home</a>/<a href="index.html">kbs</a></sup></sub><br>git cheatsheet</h2>
+
+<h3> git cheatsheet</h3>
+:: create new repository on cli:<code>
+echo "# blog" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:USERNAME/REPO-NAME.git
+git push -u origin main</code>
+
+:: or push an existing repository from the command line<code>
+git remote add origin git@github.com:USERNAME/REPO-NAME.git
+git branch -M main
+git push -u origin main</code>
+
+:: rename local master to main:<code>
+git branch -m master main
+git push -u origin main 
+git push origin --delete master #if error: login github & change defauly branch & retry command</code>
+
+:: adding option to push to multiple repositories:<code>
+git remote set-url --add --push origin YOUR-GIT-SSH-URL # need to add both urls (example add github and gitlab url)</code>
+
+:: add auth token to http
+# edit <code>.git/config
+  [remote "origin"]
+      url = https://USERNAME@github.com/USERNAME/REPO-NAME.git</code>
+
+# change url:<code>
+  [remote "origin"]
+      url = https://oauth2:ACCESS-TOKEN@github.com/USERNAME/REPO-NAME.git
+
+<footer>&copy; 2022⌜&iexcl;kyli0x</footer>
+
