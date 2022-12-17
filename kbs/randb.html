@@ -8,7 +8,7 @@ this is a dump of random information that i come across that doesnt seem to fit 
 :: use dash-case in you filesystem for speed
 
 :: get windows license key after linux is installed
-    <code> strings /sys/firmware/acpi/tables/MSDM
+    <code> strings /sys/firmware/acpi/tables/MSDM</code>
 
 :: find mouse button state
     <code>$ xev |grep button</code>
@@ -41,6 +41,19 @@ this is a dump of random information that i come across that doesnt seem to fit 
 
 :: list files that contain searched keyword
     <code>grep -iRl [keyword] [path/to/file]</code>
+
+:: ping all ips
+    <code>ping -s -g xxx.xxx.x.1 - xxx.xxx.x.9
+    
+    #!/bin/bash
+    IP='xxx.xxx.x.x'
+    fping -c1 -t300 $IP 2>/dev/null 1>/dev/null
+    if [ "$?" = 0 ]
+    then
+    echo "Host found"
+    else
+    echo "Host not found"
+    fi</code>
 
 :: use the following commands to start monitor mode for airmon-ng
     <code>ifconfig wlp3s0 down
