@@ -24,11 +24,6 @@ m = folium.Map(
 # set bounderies of map panning
 m.fit_bounds([[33.98813901349684, -118.46677927707837], [0, -1.0]])
 
-
-folium.TileLayer(
-    tiles='Stamen Terrain',
-).add_to(m)
-
 folium.TileLayer(
     tiles='OpenStreetMap',
 ).add_to(m)
